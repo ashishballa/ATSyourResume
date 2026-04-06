@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: atsyourresume-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+    autoDeploy: true

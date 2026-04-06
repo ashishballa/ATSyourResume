@@ -1,9 +1,11 @@
-# DataSense — Claude Code Instructions
+# ATSyourResume — Claude Code Instructions
 
 ## About this project
-Building DataSense: a home insurance RAG chatbot + agentic BI copilot.
-Stack: Python + FastAPI + Google Gemini API + PostgreSQL + ChromaDB + LangChain + React + Vite + Docker.
-Deployed: Render Docker (backend) + Vercel (frontend) + Supabase (PostgreSQL).
+Building ATSyourResume: AI-powered resume tailoring tool.
+Paste a job description + your resume → get a tailored PDF or Word doc download.
+Three modes: Full Resume PDF/Word, Rewrite bullets (diff view), Generate from scratch.
+Stack: Python + FastAPI + Google Gemini 2.5 Flash + ReportLab + python-docx + React + Vite + Docker.
+Deployed: Render Docker (backend) + Vercel (frontend). No database needed for core features.
 Developer: Python beginner, strong React + Cloud background.
 
 ---
@@ -40,25 +42,22 @@ Developer: Python beginner, strong React + Cloud background.
 
 ### File structure
 ```
-datasense/
-├── main.py               # FastAPI entry point, mounts insurance router
-├── agent.py              # Gemini tool-use agent (text-to-SQL)
-├── Dockerfile            # Production container (python:3.12-slim + uv)
-├── docker-compose.yml    # Local dev: API + PostgreSQL with healthcheck
-├── .dockerignore         # Excludes .env, .venv, __pycache__, frontend/node_modules
-├── requirements.txt      # Pinned deps fallback (pip)
-├── render.yaml           # Render deploy config (Docker runtime)
-├── insurance/
-│   ├── auth.py           # JWT + RBAC (admin/user roles) + PostgreSQL pool
-│   ├── store.py          # DB ops: sessions, messages, certs, stats, user mgmt
-│   ├── rag.py            # Hybrid BM25+MMR search + streaming chat
-│   ├── certify.py        # 4-step form schema + autofill + PDF generation
-│   ├── router.py         # All /insurance/* endpoints + rate limiting
-│   ├── ingest.py         # PDF ingestion into ChromaDB (run once locally)
-│   └── docs/             # Home insurance PDFs
-├── evals/                # SQL eval suite
-├── frontend/             # React + Vite
-│   └── src/insurance/    # Login, Chat, Certify, Admin components
+ATSyourResume/
+├── main.py                  # FastAPI entry point, mounts resume router
+├── rate_limit.py            # Shared slowapi limiter
+├── Dockerfile               # Production container (python:3.12-slim + uv)
+├── docker-compose.yml       # Local dev: API only (no DB)
+├── .dockerignore
+├── requirements.txt         # Pinned deps fallback (pip)
+├── render.yaml              # Render deploy config (Docker runtime)
+├── resume/
+│   ├── router.py            # /resume/tailor, /resume/rewrite, /resume/generate
+│   ├── generator.py         # ReportLab PDF builder
+│   └── generator_docx.py    # python-docx Word builder
+├── frontend/                # React + Vite
+│   ├── src/resume/          # ResumeTailor.jsx + ResumeTailor.css (main app)
+│   ├── .env.local           # VITE_API_URL for local dev
+│   └── vite.config.js       # cacheDir /tmp to fix WSL2 NTFS issue
 └── CLAUDE.md
 ```
 
@@ -73,31 +72,30 @@ datasense/
   `uv export --frozen --no-dev --no-emit-project -o requirements.txt`
 
 ### Gemini API usage — minimize tokens
-- Keep system prompts under 200 words.
-- For SQL generation tasks, use focused single-turn calls not multi-turn.
-- Never send entire database schemas — send only relevant table schemas.
+- Keep system prompts under 300 words.
+- Use focused single-turn calls — no multi-turn for resume tasks.
+- Always use `response_mime_type="application/json"` to enforce JSON output.
+- Model: `gemini-2.5-flash` (free tier). Never suggest paid models.
 
-### Database
-- Local dev: PostgreSQL via Docker (`datasense-db` container).
-- Production: Supabase (connection pooler URL).
-- Connection string from `DATABASE_URL` env variable.
-- Use `psycopg2` for raw queries + `SimpleConnectionPool` for pooling.
-
-### ChromaDB
-- Stored in `insurance/chroma_db/` — committed to git for deployment.
-- Re-ingest only when adding new PDFs: `uv run python insurance/ingest.py`
-- Free tier limit: 1000 embed requests/day — ingest uses batching + backoff.
+### Resume pipeline
+- `/resume/tailor` → TAILOR_SYSTEM prompt → `_json.loads(raw)` → `build_pdf()` or `build_docx()`
+- `/resume/rewrite` → REWRITE_SYSTEM prompt → `_parse_list(raw)` → list of `{original, rewritten}`
+- `/resume/generate` → GENERATE_SYSTEM prompt → `_parse_list(raw)` → list of `{original: null, rewritten}`
+- All prompts use example values (not type annotations) in JSON schemas to prevent placeholder leakage.
+- `generator.py` uses `_clean_list()` to filter model artifacts from skills/certs arrays.
 
 ### Frontend
 - React + Vite (developer already knows React).
 - No UI framework — plain CSS only.
-- Local: fetches from `http://localhost:8000`.
+- Resume persisted in `localStorage` with key `atsyr_resume` — no server-side storage.
+- Local: fetches from `http://localhost:8001` (via `frontend/.env.local`).
 - Production: fetches from `VITE_API_URL` env var (set in Vercel).
+- WSL2 fix: `cacheDir: '/tmp/vite-atsyourresume'` in `vite.config.js`.
 
 ### Docker
 - `Dockerfile` uses `python:3.12-slim`, installs uv, runs `uv sync --frozen --no-dev`
 - Start command: `sh -c "uv run uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"`
-- Local dev: `docker compose up --build` (spins up API + postgres, healthcheck on db)
+- Local dev: `docker compose up --build` (API only, no postgres)
 - `.dockerignore` excludes `.env`, `.venv`, `__pycache__`, `frontend/node_modules`, `evals`
 - After adding a package: `uv add <pkg>` then commit both `pyproject.toml` and `uv.lock`
 - Also regenerate `requirements.txt`: `uv export --frozen --no-dev --no-emit-project -o requirements.txt`
@@ -105,16 +103,9 @@ datasense/
 ### Deployment
 - Backend → Render (`render.yaml`), runtime: docker, reads `Dockerfile`
 - Frontend → Vercel, root dir: `frontend`, framework: vite
-- DB → Supabase, use Transaction pooler URL (not direct IPv6)
-- CORS: add Vercel URL to `ALLOWED_ORIGINS` in `main.py` and set `FRONTEND_URL` on Render
+- No database needed — core resume features are stateless
+- CORS: set `FRONTEND_URL` env var on Render to Vercel URL; `VERCEL_URL` also supported in main.py
 - Render free tier sleeps after 15min — UptimeRobot pings every 5min to keep it awake
-
-### Auth / RBAC
-- Roles: `user` (default) and `admin` — stored in `insurance_users.role` column
-- Role embedded in JWT at login — no DB hit on protected requests
-- `require_admin` dependency in `auth.py` — use on any admin-only endpoint
-- To promote a user: `UPDATE insurance_users SET role = 'admin' WHERE username = '...'`
-- Admin endpoints: `GET /admin/stats`, `GET /admin/users`, `PUT /admin/users/{username}/role`
 
 ---
 
@@ -129,13 +120,13 @@ When I make a Python mistake, correct it and note the rule in one line.
 ---
 
 ## Phase tracker
-- [x] Phase 1: LLM + tool use basics
-- [x] Phase 2: Text-to-SQL agent + FastAPI + React UI
-- [x] Phase 3: Insurance RAG chatbot + certification flow + JWT auth + deployment
-- [x] Phase 3+: Security hardening (rate limiting, brute-force, headers, input validation)
-- [x] Phase 3+: RBAC (admin/user roles, admin dashboard, user management)
-- [x] Phase 3+: Docker + Docker Compose, Render Docker runtime
-- [ ] Phase 4: Design doc + portfolio polish
+- [x] Phase 1: Core bullet rewrite + diff view (Gemini + FastAPI + React)
+- [x] Phase 2: Full resume tailor → PDF download (ReportLab)
+- [x] Phase 2+: Generate bullets from scratch mode
+- [x] Phase 2+: Quality pass (prompt engineering, type safety, char limit fixes)
+- [x] Phase 2+: localStorage resume persistence + Word doc download (python-docx)
+- [ ] Phase 3: Deploy to Render + Vercel
+- [ ] Phase 4: Growth (Reddit, LinkedIn, job boards) + freemium model
 
 ---
 

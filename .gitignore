@@ -1,0 +1,30 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secrets
+.env
+
+# Frontend
+frontend/node_modules
+
+# ChromaDB excluded — committed to repo for deployment
+
+# Local env files
+frontend/.env.local
+
+# Claude Code settings & memory
+.claude/
+
+# Superpowers brainstorm artifacts
+.superpowers/
+
+# Windows metadata
+*:Zone.Identifier
