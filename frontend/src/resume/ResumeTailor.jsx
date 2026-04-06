@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './ResumeTailor.css'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -19,6 +19,23 @@ function errorMessage(status, detail) {
     return 'AI returned an unexpected response — please try again.'
   if (detail) return detail
   return 'Something went wrong — please try again.'
+}
+
+const KW_STOP = new Set(['with','from','that','this','have','will','been','they','their','were','which','also','more','than','when','what','your','into','over','after','about','just','each','some','such','only','most','there','where','here','both','work','team','able','used','using','built','being','make','need','must','good','help','take','give','well','high','level','years','year','strong','skills','experience','including','following','required','preferred','ability','knowledge','familiarity','understanding','excellent','working','candidates','candidate','minimum','seeking','looking','please','apply'])
+
+function extractKeywords(jd) {
+  const words = jd.toLowerCase().match(/\b[a-z][a-z0-9+#.\-]{2,}\b/g) || []
+  const freq = {}
+  for (const w of words) { if (!KW_STOP.has(w)) freq[w] = (freq[w] || 0) + 1 }
+  return Object.entries(freq)
+    .filter(([w, c]) => c >= 2 || w.length >= 5)
+    .map(([w]) => w)
+    .slice(0, 40)
+}
+
+function countMatches(keywords, data) {
+  const text = JSON.stringify(data).toLowerCase()
+  return keywords.filter(kw => text.includes(kw)).length
 }
 
 // ── Diff row ───────────────────────────────────────────────────────────────
@@ -248,7 +265,8 @@ function ResumePreviewPane({ jd, data, onChange, onRetailor }) {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `tailored_resume.${format}`
+      const safeName = (data.name || 'resume').replace(/[^a-zA-Z0-9]/g, '_')
+      a.download = `tailored_${safeName}.${format}`
       a.click()
       URL.revokeObjectURL(url)
       setDone(true)
@@ -260,6 +278,8 @@ function ResumePreviewPane({ jd, data, onChange, onRetailor }) {
   }
 
   const jdSnippet = jd.slice(0, 60) + (jd.length > 60 ? '…' : '')
+  const keywords = extractKeywords(jd)
+  const matchCount = countMatches(keywords, data)
 
   return (
     <div className="rt-results-layout">
@@ -270,6 +290,9 @@ function ResumePreviewPane({ jd, data, onChange, onRetailor }) {
           ← Re-tailor
         </button>
         <span className="rt-results-jd-snippet">{jdSnippet}</span>
+        {keywords.length > 0 && (
+          <span className="rt-match-badge">{matchCount}/{keywords.length} matched</span>
+        )}
         <div className="rt-results-bar-right">
           <div className="rt-format-toggle">
             <button
@@ -321,11 +344,31 @@ function FullTailor() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [previewData, setPreviewData] = useState(null)
+  const [loadingStep, setLoadingStep] = useState(0)
   const fileInputRef = useRef()
+
+  const LOADING_STEPS = [
+    'Analyzing job requirements…',
+    'Extracting keywords…',
+    'Rewriting your bullets…',
+    'Formatting your resume…',
+  ]
+
+  useEffect(() => {
+    if (!loading) { setLoadingStep(0); return }
+    const interval = setInterval(() => {
+      setLoadingStep(s => (s + 1) % LOADING_STEPS.length)
+    }, 3500)
+    return () => clearInterval(interval)
+  }, [loading])
 
   const canSubmit = jd.trim() && resumeText.trim()
   const resumePreview = resumeText.trim().split('\n')[0].slice(0, 55) +
     (resumeText.trim().split('\n')[0].length > 55 ? '…' : '')
+
+  function handleKeyDown(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') handleSubmit(e)
+  }
 
   async function handleFileUpload(e) {
     const file = e.target.files[0]
@@ -397,7 +440,7 @@ function FullTailor() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rt-form">
+    <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="rt-form">
       <div className="rt-tailor-inputs">
 
         {/* Left: Resume */}
@@ -476,10 +519,10 @@ function FullTailor() {
       {error && <p className="rt-error">{error}</p>}
 
       <div className="rt-form-footer">
-        <span className="rt-shortcut" />
+        <span className="rt-shortcut">{navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}+Enter to submit</span>
         <button type="submit" disabled={loading || !canSubmit} className="rt-submit">
           {loading
-            ? <><span className="rt-spinner" /><span className="rt-loading-text">Building your resume...</span></>
+            ? <><span className="rt-spinner" /><span className="rt-loading-text">{LOADING_STEPS[loadingStep]}</span></>
             : 'Tailor Resume →'}
         </button>
       </div>
@@ -766,13 +809,9 @@ export default function ResumeTailor() {
               Try it free →
             </button>
           </div>
-          <div style={{display:'flex', alignItems:'center', gap:'20px', marginTop:'4px', flexWrap:'wrap'}}>
-            {[
-              '✓ No account needed',
-              '✓ No data stored',
-              '✓ PDF + Word download'
-            ].map(t => (
-              <span key={t} style={{fontSize:'0.78rem', color:'#3d3d5c'}}>{t}</span>
+          <div className="rt-trust-badges">
+            {['✓ No account needed', '✓ No data stored', '✓ PDF + Word download'].map(t => (
+              <span key={t} className="rt-trust-item">{t}</span>
             ))}
           </div>
         </div>
@@ -810,20 +849,39 @@ export default function ResumeTailor() {
         </div>
       </section>
 
+      {/* Before / After showcase */}
+      <section className="rt-showcase">
+        <div className="rt-showcase-inner">
+          <div className="rt-showcase-label">See the difference</div>
+          <div className="rt-showcase-grid">
+            <div className="rt-showcase-col">
+              <div className="rt-showcase-tag">Before</div>
+              <p className="rt-showcase-bullet rt-showcase-bullet--before">
+                "Helped develop web applications using various technologies and collaborated with team members on several projects."
+              </p>
+            </div>
+            <div className="rt-showcase-arrow" aria-hidden="true">→</div>
+            <div className="rt-showcase-col">
+              <div className="rt-showcase-tag rt-showcase-tag--after">After · Tailored for Senior SWE at Meta</div>
+              <p className="rt-showcase-bullet rt-showcase-bullet--after">
+                "Led development of 4 React/TypeScript web applications reducing page load time 45% via lazy loading and code splitting; shipped 3 major features per sprint cycle collaborating cross-functionally with design and product teams."
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Value props */}
-      <section style={{padding:'0 32px 60px', display:'flex', justifyContent:'center'}}>
-        <div style={{maxWidth:'800px', width:'100%', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px'}}>
+      <section className="rt-value-props-section">
+        <div className="rt-value-props">
           {[
             { title: '95%+ ATS match', desc: 'Exact keyword extraction from the JD — not synonyms.' },
             { title: 'PDF & Word', desc: 'Download in the format your application portal needs.' },
             { title: 'Edit before download', desc: 'Review every line. Fix anything before it goes out.' },
           ].map(({ title, desc }) => (
-            <div key={title} style={{
-              background:'rgba(13,13,20,0.8)', border:'1px solid rgba(255,255,255,0.06)',
-              borderRadius:'12px', padding:'20px'
-            }}>
-              <div style={{fontSize:'0.9rem', fontWeight:'600', color:'#f1f1f8', marginBottom:'6px'}}>{title}</div>
-              <div style={{fontSize:'0.82rem', color:'#7878a0', lineHeight:'1.5'}}>{desc}</div>
+            <div key={title} className="rt-value-card">
+              <div className="rt-value-card-title">{title}</div>
+              <div className="rt-value-card-desc">{desc}</div>
             </div>
           ))}
         </div>
