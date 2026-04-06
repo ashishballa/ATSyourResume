@@ -202,7 +202,8 @@ Output ONLY valid JSON, no markdown fences. Follow this structure exactly:
 Rules for optional fields:
 - linkedin/github: include only if present in the resume. If absent, omit the key entirely.
 - gpa: include only if present in the resume. If absent, omit the key entirely.
-- certifications: include only real certifications from the resume. Use an empty array [] if none."""
+- certifications: include only real certifications from the resume. Use an empty array [] if none.
+IMPORTANT: Do NOT use markdown formatting (**bold**, *italic*, __underline__) anywhere inside string values."""
 
 
 class TailorRequest(BaseModel):
@@ -214,6 +215,18 @@ class TailorRequest(BaseModel):
 class DownloadRequest(BaseModel):
     data: dict
     format: str = "pdf"  # "pdf" or "docx"
+
+
+def _strip_md(value):
+    """Recursively strip markdown bold/italic markers from all string values."""
+    if isinstance(value, str):
+        import re
+        return re.sub(r'\*{1,2}([^*]+)\*{1,2}', r'\1', value)
+    if isinstance(value, list):
+        return [_strip_md(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _strip_md(v) for k, v in value.items()}
+    return value
 
 
 async def _tailor_to_json(jd: str, resume_text: str) -> dict:
@@ -231,7 +244,7 @@ async def _tailor_to_json(jd: str, resume_text: str) -> dict:
             raise ValueError("expected object")
     except (ValueError, _json.JSONDecodeError):
         raise HTTPException(500, detail="parse_error")
-    return data
+    return _strip_md(data)
 
 
 def _build_file_response(data: dict, fmt: str) -> StreamingResponse:
