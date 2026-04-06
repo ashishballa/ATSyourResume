@@ -749,22 +749,6 @@ export default function ResumeTailor() {
         </div>
       </nav>
 
-      {/* Announcement bar */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '8px 24px',
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
-        background: 'rgba(99,102,241,0.06)',
-        fontSize: '0.8rem',
-        color: '#7878a0',
-        gap: '8px'
-      }}>
-        <span style={{color: '#a5b4fc', fontSize: '0.7rem'}}>✦ NEW</span>
-        Gemini 2.5 Flash · Free while in beta · No account needed
-        <span style={{color: '#3d3d5c', margin: '0 4px'}}>·</span>
-        <button type="button" onClick={scrollToTool} style={{background:'none',border:'none',color:'#6366f1',fontSize:'0.8rem',cursor:'pointer',padding:0,fontFamily:'inherit'}}>Try it free →</button>
-      </div>
-
       {/* Hero */}
       <section className="rt-hero">
         <div className="rt-hero-inner">
@@ -781,7 +765,6 @@ export default function ResumeTailor() {
             <button type="button" className="rt-hero-btn" onClick={scrollToTool}>
               Try it free →
             </button>
-            <span className="rt-hero-hint">Powered by Gemini 2.5 Flash · Takes ~15 seconds</span>
           </div>
           <div style={{display:'flex', alignItems:'center', gap:'20px', marginTop:'4px', flexWrap:'wrap'}}>
             {[
@@ -855,13 +838,9 @@ export default function ResumeTailor() {
 
       {/* Footer */}
       <footer className="rt-footer">
-        <span style={{fontWeight:'600', color:'#3d3d5c'}}>ATSyourResume</span>
+        <span>ATSyourResume</span>
         <span className="rt-footer-sep">·</span>
-        <span>Free forever</span>
-        <span className="rt-footer-sep">·</span>
-        <span>No data stored</span>
-        <span className="rt-footer-sep">·</span>
-        <span>Built with Gemini 2.5 Flash</span>
+        <span>Made by Ashish Balla</span>
       </footer>
     </div>
   )
