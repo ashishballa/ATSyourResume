@@ -464,7 +464,7 @@ function FullTailor() {
           <textarea
             value={jd}
             onChange={e => setJd(e.target.value)}
-            placeholder="Paste the full job description or requirements section..."
+            placeholder={"Paste the job description here — the full posting works best.\n\nAI will extract the exact keywords, phrases, and requirements that matter to this employer."}
             rows={14}
             maxLength={6000}
             required
@@ -749,23 +749,48 @@ export default function ResumeTailor() {
         </div>
       </nav>
 
+      {/* Announcement bar */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '8px 24px',
+        borderBottom: '1px solid rgba(255,255,255,0.05)',
+        background: 'rgba(99,102,241,0.06)',
+        fontSize: '0.8rem',
+        color: '#7878a0',
+        gap: '8px'
+      }}>
+        <span style={{color: '#a5b4fc', fontSize: '0.7rem'}}>✦ NEW</span>
+        Gemini 2.5 Flash · Free while in beta · No account needed
+        <span style={{color: '#3d3d5c', margin: '0 4px'}}>·</span>
+        <button type="button" onClick={scrollToTool} style={{background:'none',border:'none',color:'#6366f1',fontSize:'0.8rem',cursor:'pointer',padding:0,fontFamily:'inherit'}}>Try it free →</button>
+      </div>
+
       {/* Hero */}
       <section className="rt-hero">
         <div className="rt-hero-inner">
           <div className="rt-badge">Free · No account needed</div>
           <h1 className="rt-hero-h1">
-            Stop getting<br />
-            <span className="rt-hero-accent">filtered out.</span>
+            Your resume,<br />
+            <span className="rt-hero-accent">rewritten to win.</span>
           </h1>
           <p className="rt-hero-sub">
-            Your resume bullets, rewritten in the exact language of the job description.
-            Paste a JD. Paste your bullets. Accept what works.
+            Paste any job description. Upload your resume. Get a tailored PDF in seconds —
+            written in the exact language ATS systems and hiring managers look for.
           </p>
           <div className="rt-hero-actions">
             <button type="button" className="rt-hero-btn" onClick={scrollToTool}>
               Try it free →
             </button>
-            <span className="rt-hero-hint">Powered by Gemini 2.5 Flash</span>
+            <span className="rt-hero-hint">Powered by Gemini 2.5 Flash · Takes ~15 seconds</span>
+          </div>
+          <div style={{display:'flex', alignItems:'center', gap:'20px', marginTop:'4px', flexWrap:'wrap'}}>
+            {[
+              '✓ No account needed',
+              '✓ No data stored',
+              '✓ PDF + Word download'
+            ].map(t => (
+              <span key={t} style={{fontSize:'0.78rem', color:'#3d3d5c'}}>{t}</span>
+            ))}
           </div>
         </div>
       </section>
@@ -773,7 +798,7 @@ export default function ResumeTailor() {
       {/* How it works */}
       <section className="rt-how" id="how-it-works">
         <div className="rt-how-inner">
-          <h2 className="rt-how-h2">How it works</h2>
+          <h2 className="rt-how-h2">Three steps to your best resume</h2>
           <div className="rt-steps">
             <div className="rt-step">
               <div className="rt-step-num">1</div>
@@ -802,6 +827,25 @@ export default function ResumeTailor() {
         </div>
       </section>
 
+      {/* Value props */}
+      <section style={{padding:'0 32px 60px', display:'flex', justifyContent:'center'}}>
+        <div style={{maxWidth:'800px', width:'100%', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px'}}>
+          {[
+            { title: '95%+ ATS match', desc: 'Exact keyword extraction from the JD — not synonyms.' },
+            { title: 'PDF & Word', desc: 'Download in the format your application portal needs.' },
+            { title: 'Edit before download', desc: 'Review every line. Fix anything before it goes out.' },
+          ].map(({ title, desc }) => (
+            <div key={title} style={{
+              background:'rgba(13,13,20,0.8)', border:'1px solid rgba(255,255,255,0.06)',
+              borderRadius:'12px', padding:'20px'
+            }}>
+              <div style={{fontSize:'0.9rem', fontWeight:'600', color:'#f1f1f8', marginBottom:'6px'}}>{title}</div>
+              <div style={{fontSize:'0.82rem', color:'#7878a0', lineHeight:'1.5'}}>{desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* The tool */}
       <section className="rt-tool-section">
         <div className="rt-tool-inner">
@@ -811,9 +855,13 @@ export default function ResumeTailor() {
 
       {/* Footer */}
       <footer className="rt-footer">
-        <span>ATSyourResume</span>
+        <span style={{fontWeight:'600', color:'#3d3d5c'}}>ATSyourResume</span>
         <span className="rt-footer-sep">·</span>
-        <span>Free forever · No data stored · No account needed</span>
+        <span>Free forever</span>
+        <span className="rt-footer-sep">·</span>
+        <span>No data stored</span>
+        <span className="rt-footer-sep">·</span>
+        <span>Built with Gemini 2.5 Flash</span>
       </footer>
     </div>
   )
