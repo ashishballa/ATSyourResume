@@ -1,5 +1,17 @@
 # ATSyourResume — Claude Code Instructions
 
+## Agents and commands
+
+Specialized agents in `.claude/agents/` — use them for focused work:
+- **resume-pipeline** — prompt changes, PDF/DOCX generation, JSON schema, ATS scoring
+- **frontend-ui** — React components, CSS, design system, localStorage, API calls
+- **deploy** — Render/Vercel deployment, env vars, CORS, production debugging
+
+Custom slash commands in `.claude/commands/`:
+- `/deploy-check` — verify production health
+- `/new-feature` — checklist before writing a new feature
+- `/fix-prompt` — guide for improving Gemini prompts
+
 ## About this project
 Building ATSyourResume: AI-powered resume tailoring tool.
 Paste a job description + your resume → get a tailored PDF or Word doc download.

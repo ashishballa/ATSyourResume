@@ -20,8 +20,9 @@ frontend/node_modules
 # Local env files
 frontend/.env.local
 
-# Claude Code settings & memory
-.claude/
+# Claude Code settings & memory (keep agents/commands, ignore local settings)
+.claude/settings.local.json
+.claude/worktrees/
 
 # Superpowers brainstorm artifacts
 .superpowers/
