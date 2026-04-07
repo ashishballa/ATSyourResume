@@ -87,6 +87,28 @@ def build_pdf(data: dict) -> bytes:
             for bullet in job.get("bullets", []):
                 story.append(Paragraph(f"• {bullet}", s["bullet"]))
 
+    # ── Projects ────────────────────────────────────────────────────────────
+    if projects := data.get("projects"):
+        story.append(Paragraph("PROJECTS", s["section"]))
+        story.append(HRFlowable(width="100%", thickness=0.5, color=MUTED))
+        for proj in projects:
+            story.append(Spacer(1, 5))
+            name_dates = proj.get("name", "")
+            if proj.get("dates"):
+                name_dates = f"{name_dates}  |  {proj['dates']}"
+            story.append(Paragraph(name_dates, s["job_title"]))
+            meta_parts = []
+            if proj.get("tech"):
+                meta_parts.append(proj["tech"])
+            if proj.get("url"):
+                meta_parts.append(proj["url"])
+            if proj.get("github"):
+                meta_parts.append(proj["github"])
+            if meta_parts:
+                story.append(Paragraph("  |  ".join(meta_parts), s["meta"]))
+            for bullet in proj.get("bullets", []):
+                story.append(Paragraph(f"• {bullet}", s["bullet"]))
+
     # ── Education ───────────────────────────────────────────────────────────
     if education := data.get("education"):
         story.append(Paragraph("EDUCATION", s["section"]))

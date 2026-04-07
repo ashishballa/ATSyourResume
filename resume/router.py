@@ -189,6 +189,16 @@ Output ONLY valid JSON, no markdown fences. Follow this structure exactly:
       "bullets": ["Led migration of monolith to microservices, reducing deploy time by 60%."]
     }
   ],
+  "projects": [
+    {
+      "name": "MyProject — Short tagline",
+      "dates": "2025",
+      "tech": "Python · FastAPI · React",
+      "url": "https://myproject.com",
+      "github": "https://github.com/user/myproject",
+      "bullets": ["Built X using Y, achieving Z."]
+    }
+  ],
   "education": [
     {
       "degree": "B.S. Computer Science",
@@ -203,6 +213,7 @@ Rules for optional fields:
 - linkedin/github: include only if present in the resume. If absent, omit the key entirely.
 - gpa: include only if present in the resume. If absent, omit the key entirely.
 - certifications: include only real certifications from the resume. Use an empty array [] if none.
+- projects: include all projects from the resume. For url/github, include only if present in the resume — omit the key if absent. Use empty array [] if no projects exist.
 IMPORTANT: Do NOT use markdown formatting (**bold**, *italic*, __underline__) anywhere inside string values."""
 
 

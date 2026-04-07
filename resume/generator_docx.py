@@ -125,6 +125,40 @@ def build_docx(data: dict) -> bytes:
                 run = bp.add_run(bullet)
                 run.font.size = Pt(10)
 
+    # ── Projects ────────────────────────────────────────────────────────────
+    if projects := data.get("projects"):
+        _section_header(doc, "PROJECTS")
+        for proj in projects:
+            np = doc.add_paragraph()
+            np.paragraph_format.space_before = Pt(4)
+            np.paragraph_format.space_after = Pt(1)
+            name_run = np.add_run(proj.get("name", ""))
+            name_run.bold = True
+            name_run.font.size = Pt(10)
+            if proj.get("dates"):
+                np.add_run(f"  |  {proj['dates']}").font.size = Pt(10)
+
+            meta_parts = []
+            if proj.get("tech"):
+                meta_parts.append(proj["tech"])
+            if proj.get("url"):
+                meta_parts.append(proj["url"])
+            if proj.get("github"):
+                meta_parts.append(proj["github"])
+            if meta_parts:
+                mp = doc.add_paragraph("  |  ".join(meta_parts))
+                mp.paragraph_format.space_after = Pt(2)
+                for run in mp.runs:
+                    run.font.size = Pt(9)
+                    run.font.color.rgb = MUTED
+
+            for bullet in proj.get("bullets", []):
+                bp = doc.add_paragraph(style='List Bullet')
+                bp.paragraph_format.space_after = Pt(1)
+                bp.paragraph_format.left_indent = Inches(0.15)
+                run = bp.add_run(bullet)
+                run.font.size = Pt(10)
+
     # ── Education ───────────────────────────────────────────────────────────
     if education := data.get("education"):
         _section_header(doc, "EDUCATION")
