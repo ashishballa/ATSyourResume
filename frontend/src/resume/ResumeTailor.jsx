@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import './ResumeTailor.css'
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -278,8 +278,8 @@ function ResumePreviewPane({ jd, data, onChange, onRetailor }) {
   }
 
   const jdSnippet = jd.slice(0, 60) + (jd.length > 60 ? '…' : '')
-  const keywords = extractKeywords(jd)
-  const matchCount = countMatches(keywords, data)
+  const keywords = useMemo(() => extractKeywords(jd), [jd])
+  const matchCount = useMemo(() => countMatches(keywords, data), [keywords, data])
 
   return (
     <div className="rt-results-layout">

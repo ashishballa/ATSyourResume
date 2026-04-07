@@ -1,3 +1,4 @@
+import asyncio
 import io
 import json as _json
 import os
@@ -16,6 +17,8 @@ from .generator import build_pdf
 from .generator_docx import build_docx
 
 router = APIRouter(prefix="/resume")
+
+_client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
 
 # ── ATS-optimised prompts ──────────────────────────────────────────────────
 # Shorter = fewer tokens. Rules are explicit so the model doesn't drift.
@@ -46,9 +49,8 @@ Return ONLY a JSON array of 5 strings."""
 
 
 async def _call_llm(system: str, user: str) -> str:
-    client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
     try:
-        resp = client.models.generate_content(
+        resp = _client.models.generate_content(
             model="gemini-2.5-flash",
             contents=user,
             config=types.GenerateContentConfig(
@@ -146,75 +148,30 @@ async def generate_bullets(request: Request, req: GenerateRequest):
 # ── Full resume tailor → PDF download ──────────────────────────────────────
 
 TAILOR_SYSTEM = """\
-You are an ATS keyword-maximization expert. Goal: 95%+ ATS match score.
+You are an ATS expert. Rewrite the resume to achieve 95%+ ATS match for the job description.
 
-ATS systems rank resumes by exact keyword frequency across sections — skills section \
-weighs most, summary second, bullets third. Repetition of the same keyword across \
-sections multiplies the score.
+ATS scores by exact keyword frequency across sections. Skills section weighs most, summary second, bullets third.
 
-STEP 1 — Extract from the JD before writing:
-• Required skills, tools, frameworks, technologies (exact spelling: "PostgreSQL" ≠ "Postgres")
-• Preferred skills
-• Key phrases (e.g. "cross-functional teams", "CI/CD pipelines", "stakeholder management")
-• The exact job title
+Rules:
+1. Extract from JD: required skills/tools/frameworks (exact spelling), key phrases, job title.
+2. SKILLS: include every JD skill the candidate has used, exact JD spelling/casing. Be comprehensive.
+3. SUMMARY: 2-3 sentences, include exact job title + 4-5 required JD keywords.
+4. BULLETS: rewrite every bullet with ≥1 exact JD keyword. Mirror JD verbs. Quantify where original had numbers.
+5. Never change titles/companies/dates. Never fabricate experience. Never use synonyms when JD has exact terms.
+6. Do NOT use markdown formatting inside string values.
 
-STEP 2 — Rewrite each section:
-SKILLS: Include every JD skill/tool the candidate has used, using JD's exact spelling/casing. \
-This is the highest-weighted ATS section — be comprehensive.
-SUMMARY: 2–3 sentences containing the role's exact job title + 4–5 required JD keywords. \
-Second-highest ATS weight.
-BULLETS: Rewrite every bullet with ≥1 exact JD keyword. Mirror JD action verbs. \
-Required skills must appear here AND in skills list — repetition boosts score. \
-Quantify impact wherever the original had numbers.
-TITLES/COMPANIES/DATES: Never alter — accuracy is non-negotiable.
-
-Never use synonyms when the JD has an exact term. Never fabricate experience.
-Output ONLY valid JSON, no markdown fences. Follow this structure exactly:
+Output ONLY valid JSON:
 {
   "name": "Jane Smith",
-  "contact": {
-    "email": "jane@email.com",
-    "phone": "555-123-4567",
-    "location": "San Francisco, CA",
-    "linkedin": "linkedin.com/in/janesmith",
-    "github": "github.com/janesmith"
-  },
+  "contact": {"email": "jane@email.com", "phone": "555-123-4567", "location": "San Francisco, CA", "linkedin": "linkedin.com/in/janesmith", "github": "github.com/janesmith"},
   "summary": "Two to three sentence professional summary tailored to the role.",
   "skills": ["Python", "FastAPI", "PostgreSQL"],
-  "experience": [
-    {
-      "title": "Software Engineer",
-      "company": "Acme Corp",
-      "dates": "Jan 2022 – Present",
-      "bullets": ["Led migration of monolith to microservices, reducing deploy time by 60%."]
-    }
-  ],
-  "projects": [
-    {
-      "name": "MyProject — Short tagline",
-      "dates": "2025",
-      "tech": "Python · FastAPI · React",
-      "url": "https://myproject.com",
-      "github": "https://github.com/user/myproject",
-      "bullets": ["Built X using Y, achieving Z."]
-    }
-  ],
-  "education": [
-    {
-      "degree": "B.S. Computer Science",
-      "school": "State University",
-      "dates": "2018 – 2022",
-      "gpa": "3.8/4.0"
-    }
-  ],
+  "experience": [{"title": "Software Engineer", "company": "Acme Corp", "dates": "Jan 2022 – Present", "bullets": ["Led migration of monolith to microservices, reducing deploy time by 60%."]}],
+  "projects": [{"name": "MyProject", "dates": "2025", "tech": "Python · FastAPI", "url": "https://myproject.com", "github": "https://github.com/user/myproject", "bullets": ["Built X achieving Z."]}],
+  "education": [{"degree": "B.S. Computer Science", "school": "State University", "dates": "2018 – 2022", "gpa": "3.8/4.0"}],
   "certifications": ["AWS Certified Developer – Associate"]
 }
-Rules for optional fields:
-- linkedin/github: include only if present in the resume. If absent, omit the key entirely.
-- gpa: include only if present in the resume. If absent, omit the key entirely.
-- certifications: include only real certifications from the resume. Use an empty array [] if none.
-- projects: include all projects from the resume. For url/github, include only if present in the resume — omit the key if absent. Use empty array [] if no projects exist.
-IMPORTANT: Do NOT use markdown formatting (**bold**, *italic*, __underline__) anywhere inside string values."""
+Optional field rules: linkedin/github/gpa — include only if in resume, else omit key. certifications — empty array [] if none. projects — empty array [] if none. url/github in projects — omit key if not in resume."""
 
 
 class TailorRequest(BaseModel):
@@ -258,14 +215,14 @@ async def _tailor_to_json(jd: str, resume_text: str) -> dict:
     return _strip_md(data)
 
 
-def _build_file_response(data: dict, fmt: str) -> StreamingResponse:
+async def _build_file_response(data: dict, fmt: str) -> StreamingResponse:
     safe_name = data.get("name", "resume").replace(" ", "_")
     if fmt == "docx":
-        file_bytes = build_docx(data)
+        file_bytes = await asyncio.to_thread(build_docx, data)
         media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         filename = f"tailored_{safe_name}.docx"
     else:
-        file_bytes = build_pdf(data)
+        file_bytes = await asyncio.to_thread(build_pdf, data)
         media_type = "application/pdf"
         filename = f"tailored_{safe_name}.pdf"
     return StreamingResponse(
@@ -315,7 +272,7 @@ async def tailor_resume_preview(request: Request, req: TailorRequest):
 async def download_resume(request: Request, req: DownloadRequest):
     if not isinstance(req.data, dict) or not req.data.get("name"):
         raise HTTPException(422, detail="Invalid resume data")
-    return _build_file_response(req.data, req.format)
+    return await _build_file_response(req.data, req.format)
 
 
 @router.post("/tailor")
@@ -328,4 +285,4 @@ async def tailor_resume(request: Request, req: TailorRequest):
     if not req.resume_text.strip():
         raise HTTPException(422, detail="Resume text is required")
     data = await _tailor_to_json(req.jd, req.resume_text)
-    return _build_file_response(data, req.format)
+    return await _build_file_response(data, req.format)

@@ -11,8 +11,10 @@ MUTED = colors.HexColor("#7f8c8d")
 BODY = colors.HexColor("#1a1a1a")
 
 
-def _styles():
-    return {
+def _styles(__cache={}):
+    if __cache:
+        return __cache
+    __cache.update({
         "name": ParagraphStyle("name", fontSize=22, leading=28, textColor=ACCENT, spaceAfter=4,
                                fontName="Helvetica-Bold", alignment=TA_CENTER),
         "contact": ParagraphStyle("contact", fontSize=9, textColor=MUTED, spaceAfter=10,
@@ -25,7 +27,8 @@ def _styles():
         "bullet": ParagraphStyle("bullet", fontSize=9.5, textColor=BODY, leftIndent=12,
                                  spaceAfter=2, leading=14),
         "body": ParagraphStyle("body", fontSize=9.5, textColor=BODY, spaceAfter=6, leading=14),
-    }
+    })
+    return __cache
 
 
 def _clean_list(value) -> list:
