@@ -30,6 +30,12 @@ app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+def _origin(url: str) -> str:
+    """Ensure origin has https:// prefix."""
+    if not url:
+        return ""
+    return url if url.startswith("http") else f"https://{url}"
+
 ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
@@ -37,8 +43,8 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
     "http://127.0.0.1:5175",
-    os.getenv("VERCEL_URL", ""),
-    os.getenv("FRONTEND_URL", ""),
+    _origin(os.getenv("VERCEL_URL", "")),
+    _origin(os.getenv("FRONTEND_URL", "")),
 ]
 app.add_middleware(
     CORSMiddleware,
