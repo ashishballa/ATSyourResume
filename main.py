@@ -8,9 +8,6 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 import psycopg2.extras
 from agent import ask, setup_db
-from insurance.router import router as insurance_router
-from insurance.auth import init_users_table
-from insurance.store import init_tables as init_store_tables
 from resume.router import router as resume_router
 from rate_limit import limiter
 
@@ -20,8 +17,6 @@ db = {}
 async def lifespan(app: FastAPI):
     if os.getenv("DATABASE_URL"):
         db["conn"] = setup_db()
-        init_users_table()
-        init_store_tables()
     yield
     if db.get("conn"):
         db["conn"].close()
@@ -62,7 +57,6 @@ async def security_headers(request: Request, call_next):
     response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
     return response
 
-app.include_router(insurance_router)
 app.include_router(resume_router)
 
 @app.get("/health")

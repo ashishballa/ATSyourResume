@@ -28,3 +28,4 @@ frontend/.env.local
 
 # Windows metadata
 *:Zone.Identifier
+.gstack/
