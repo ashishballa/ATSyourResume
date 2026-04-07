@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Venkat Ashish Balla — Resume</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    color: #111;
+    background: #fff;
+    max-width: 8.5in;
+    margin: 0 auto;
+    padding: 0.55in 0.7in;
+  }
+
+  /* ── Header ── */
+  .header { text-align: center; margin-bottom: 16px; }
+  .header h1 {
+    font-family: 'Arial', sans-serif;
+    font-size: 22pt;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #0a0a0a;
+    margin-bottom: 5px;
+  }
+  .contact {
+    font-family: 'Arial', sans-serif;
+    font-size: 9pt;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0 6px;
+  }
+  .contact span::before { content: '·'; margin-right: 6px; color: #aaa; }
+  .contact span:first-child::before { content: none; }
+  .contact a { color: #1a56db; text-decoration: none; }
+  .contact a:hover { text-decoration: underline; }
+
+  /* ── Section block ── */
+  .section { margin-bottom: 0; }
+
+  /* Heavy black rule + label = section header */
+  .section-title {
+    font-family: 'Arial', sans-serif;
+    font-size: 9.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #0a0a0a;
+    border-bottom: 2px solid #0a0a0a;
+    padding-bottom: 2px;
+    margin-bottom: 8px;
+    margin-top: 14px;
+  }
+
+  /* ── Section-level divider (between Experience and Projects, etc.) ── */
+  .section-divider {
+    border: none;
+    border-top: 3px double #0a0a0a;   /* double rule = unmissable visual break */
+    margin: 16px 0 0 0;
+  }
+
+  /* ── Summary ── */
+  .summary p { font-size: 10pt; color: #222; line-height: 1.5; }
+
+  /* ── Skills ── */
+  .skills-text { font-size: 9.5pt; line-height: 1.65; color: #222; }
+
+  /* ── Entry (job or project) ── */
+  .entry { padding: 9px 0; }
+  .entry:first-child { padding-top: 0; }
+  .entry:last-child  { padding-bottom: 0; }
+
+  /* Solid rule between entries inside a section */
+  .entry + .entry { border-top: 1px solid #c0c0c0; }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 1px;
+  }
+  .entry-title {
+    font-family: 'Arial', sans-serif;
+    font-weight: 700;
+    font-size: 10.5pt;
+    color: #0a0a0a;
+  }
+  .entry-date {
+    font-family: 'Arial', sans-serif;
+    font-size: 9pt;
+    color: #555;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .entry-subtitle {
+    font-family: 'Arial', sans-serif;
+    font-size: 9.5pt;
+    color: #444;
+    font-style: italic;
+    margin-bottom: 5px;
+  }
+
+  /* ── Project meta row: tech stack + links ── */
+  .project-meta {
+    font-family: 'Arial', sans-serif;
+    font-size: 8.8pt;
+    color: #555;
+    margin-bottom: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 10px;
+    align-items: center;
+  }
+  .project-meta .tech { color: #333; }
+  .project-meta .links { display: flex; gap: 8px; }
+  .project-meta a {
+    color: #1a56db;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .project-meta a:hover { text-decoration: underline; }
+  .project-meta .sep { color: #ccc; }
+
+  ul { padding-left: 16px; list-style-type: disc; }
+  ul li {
+    font-size: 10pt;
+    margin-bottom: 3px;
+    color: #222;
+    line-height: 1.45;
+  }
+  ul li::marker { color: #666; }
+
+  /* ── Print ── */
+  @media print {
+    body { padding: 0.45in 0.6in; }
+    .section-divider { border-top-color: #000; }
+    .entry + .entry { border-top-color: #aaa; }
+    a { color: #111 !important; }
+    .project-meta a { color: #111 !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>Venkat Ashish Balla</h1>
+  <div class="contact">
+    <span>venkatashishb@gmail.com</span>
+    <span>+1-905-598-9176</span>
+    <span>Toronto, ON</span>
+    <span><a href="https://linkedin.com/in/venkatashishb">LinkedIn</a></span>
+    <span><a href="https://github.com/ashishballa">GitHub</a></span>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="section summary">
+  <div class="section-title">Professional Summary</div>
+  <p>Senior Full Stack / LLM-focused Engineer with 5+ years of experience designing and developing AI-powered solutions — LLMs, AI agents, and intelligent automation workflows. Proven expertise integrating LLMs into Java/Spring and Python backend systems, with a strong background in MLOps, CI/CD pipelines, and microservices architecture.</p>
+</div>
+
+<!-- SKILLS -->
+<div class="section">
+  <div class="section-title">Skills</div>
+  <div class="skills-text">
+    <strong>AI/ML:</strong> LLMs · AI Agents · RAG Pipelines · Prompt Engineering · LLM Evaluation · LLM Observability · LangChain · LangGraph · OpenAI API · Anthropic API · Pinecone · Text-to-SQL · NLP · MLOps · LLM A/B Benchmarking · Prompt Versioning<br>
+    <strong>Backend:</strong> Python · FastAPI · Java · Spring Boot · Node.js · REST APIs · Microservices · Event-Driven Systems · Multi-Tenant Architecture · Distributed Systems<br>
+    <strong>Frontend:</strong> React · TypeScript · JavaScript<br>
+    <strong>Data:</strong> PostgreSQL · DynamoDB · Redis · SQL Query Optimisation<br>
+    <strong>Cloud / Infra:</strong> AWS · Docker · Kubernetes · Terraform · AWS CDK · CloudFormation · GitHub Actions · CI/CD · CloudWatch · Datadog · Prometheus · Grafana · Jest
+  </div>
+</div>
+
+<!-- EXPERIENCE -->
+<div class="section">
+  <div class="section-title">Experience</div>
+
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">Software Engineer — Full Stack &amp; AI</span>
+      <span class="entry-date">Jul 2024 – Present</span>
+    </div>
+    <div class="entry-subtitle">Optima Communications International &nbsp;·&nbsp; Client: Scotiabank (Financial Services Platform) &nbsp;·&nbsp; Toronto, ON</div>
+    <ul>
+      <li>Led design and development of production-grade LLM applications powering a chatbot handling 5,000+ daily interactions, integrating OpenAI and Anthropic APIs with end-to-end ownership from architecture to model deployment.</li>
+      <li>Designed multi-step AI agents and intelligent automation workflows using LangChain and LangGraph; implemented LLM evaluation pipelines with prompt versioning and A/B benchmarking aligned with MLOps practices.</li>
+      <li>Built RAG pipelines (LangChain + Pinecone) for semantic retrieval over enterprise document corpora with observability hooks monitoring retrieval quality and latency in real-time production environments.</li>
+      <li>Configured CloudWatch and Datadog dashboards for LLM observability — real-time performance monitoring and alerting for latency and accuracy regressions across all AI services.</li>
+      <li>Led React + TypeScript + Node.js (NestJS) full-stack platform development; reduced backend duplication by 40% and API response times by 30%.</li>
+      <li>Designed distributed, event-driven microservices on AWS for multi-tenant financial transaction processing achieving 99.9% SLA; owned CI/CD pipelines (GitHub Actions) with zero-downtime deployments.</li>
+      <li>Mentored 3+ junior engineers through rigorous code reviews, raising engineering and AI/ML practice standards across the team.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">Software Developer — Full Stack</span>
+      <span class="entry-date">Dec 2022 – Jun 2024</span>
+    </div>
+    <div class="entry-subtitle">Optima Communications International &nbsp;·&nbsp; Client: Chubb Insurance (Enterprise Workflow Platform) &nbsp;·&nbsp; Toronto, ON</div>
+    <ul>
+      <li>Designed scalable Python (FastAPI) backend services; wrote optimized PostgreSQL queries reducing latency by 35% on workflows processing 50,000+ records daily.</li>
+      <li>Built secure REST APIs for enterprise insurance workflows with input validation, role-based access control, and audit logging meeting regulatory compliance requirements.</li>
+      <li>Designed dynamic React form components for multi-step approval workflows with server-driven schema definitions, reducing change-request turnaround by 60%.</li>
+      <li>Authored AWS CDK and CloudFormation IaC reducing environment setup time by 70%; maintained 80%+ test coverage with Jest.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">Software Developer</span>
+      <span class="entry-date">Jul 2021 – Aug 2022</span>
+    </div>
+    <div class="entry-subtitle">iAssist Innovation Labs</div>
+    <ul>
+      <li>Built React UIs with real-time data integration; developed Node.js REST APIs handling 10,000+ daily transactions and improved PostgreSQL query performance by 25%.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">Software Developer</span>
+      <span class="entry-date">Jul 2020 – Jun 2021</span>
+    </div>
+    <div class="entry-subtitle">Bosch India</div>
+    <ul>
+      <li>Developed enterprise backend services using Java / Spring Boot; contributed to API design and security standards for distributed systems.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══ SECTION DIVIDER: Experience → Projects ══ -->
+<hr class="section-divider">
+
+<!-- PROJECTS -->
+<div class="section">
+  <div class="section-title">Personal Projects</div>
+
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">ATSyourResume — AI Resume Tailoring SaaS</span>
+      <span class="entry-date">2025</span>
+    </div>
+    <div class="project-meta">
+      <span class="tech">FastAPI · Gemini 2.5 Flash · React · ReportLab · Docker</span>
+      <span class="sep">|</span>
+      <span class="links">
+        <a href="https://atsyourresume.com" target="_blank">🌐 Live</a>
+        <a href="https://github.com/ashishballa/ATSyourResume" target="_blank">⌥ GitHub</a>
+      </span>
+    </div>
+    <ul>
+      <li>Built an AI-powered resume tailoring tool that rewrites a full resume against a job description and delivers a tailored PDF or Word download in seconds; deployed on Render (Docker) + Vercel.</li>
+      <li>Implemented three modes: full resume tailor, bullet rewrite with accept/reject diff view, and from-scratch bullet generation for new grads.</li>
+      <li>Added client-side keyword match badge ("24/27 matched") with zero API cost — equivalent functionality to Jobscan's $25/month feature.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">Datasense — Text-to-SQL AI Agent</span>
+      <span class="entry-date">2025</span>
+    </div>
+    <div class="project-meta">
+      <span class="tech">Python · FastAPI · LLM Tool-Use · PostgreSQL · React</span>
+      <span class="sep">|</span>
+      <span class="links">
+        <a href="https://github.com/ashishballa/datasense" target="_blank">⌥ GitHub</a>
+      </span>
+    </div>
+    <ul>
+      <li>Architected an AI-powered Text-to-SQL system converting natural language to SQL using an LLM agent with tool-use capabilities: intent interpretation → SQL generation → execution → result formatting.</li>
+      <li>Built modular FastAPI backend enabling iterative development and LLM backend swapping for production deployments.</li>
+    </ul>
+  </div>
+
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">Agentic AI Platform — Multi-Agent Automation</span>
+      <span class="entry-date">2025</span>
+    </div>
+    <div class="project-meta">
+      <span class="tech">LangChain · LangGraph · Pinecone · OpenAI · React · MCP</span>
+      <span class="sep">|</span>
+      <span class="links">
+        <a href="https://github.com/ashishballa/agentic-ai-platform" target="_blank">⌥ GitHub</a>
+      </span>
+    </div>
+    <ul>
+      <li>Built a multi-agent system with MCP server integration for tool-augmented, context-aware automation workflows across distributed enterprise data sources.</li>
+      <li>Implemented RAG pipelines (Pinecone + OpenAI embeddings) for semantic search; built React chatbot UI with streaming LLM responses and latency instrumentation.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- EDUCATION -->
+<hr class="section-divider">
+<div class="section">
+  <div class="section-title">Education</div>
+  <div class="entry">
+    <div class="entry-header">
+      <span class="entry-title">Master of Professional Studies — Data Analytics Engineering</span>
+      <span class="entry-date">Sep 2022 – Mar 2024</span>
+    </div>
+    <div class="entry-subtitle">Northeastern University</div>
+  </div>
+</div>
+
+</body>
+</html>

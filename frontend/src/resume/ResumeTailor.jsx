@@ -335,9 +335,10 @@ function ResumePreviewPane({ jd, data, onChange, onRetailor }) {
 // ── Full resume tailor ─────────────────────────────────────────────────────
 
 const RESUME_KEY = 'atsyr_resume'
+const JD_KEY = 'atsyr_jd'
 
 function FullTailor() {
-  const [jd, setJd] = useState('')
+  const [jd, setJd] = useState(() => localStorage.getItem(JD_KEY) || '')
   const [resumeText, setResumeText] = useState(() => localStorage.getItem(RESUME_KEY) || '')
   const [editingResume, setEditingResume] = useState(!localStorage.getItem(RESUME_KEY))
   const [loading, setLoading] = useState(false)
@@ -506,7 +507,7 @@ function FullTailor() {
           </label>
           <textarea
             value={jd}
-            onChange={e => setJd(e.target.value)}
+            onChange={e => { setJd(e.target.value); localStorage.setItem(JD_KEY, e.target.value) }}
             placeholder={"Paste the job description here — the full posting works best.\n\nAI will extract the exact keywords, phrases, and requirements that matter to this employer."}
             rows={14}
             maxLength={6000}
